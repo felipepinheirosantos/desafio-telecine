@@ -8,6 +8,28 @@ from models import User
 def home():
     return "Desafio Telecine"
 
+#Receive token in headers an try to load user's public_id
+def token_required(f):
+	@wraps(f)
+	def decorated(*args, **kwargs):
+		token = None
+
+		if 'x-access-token' in request.headers:
+			token = request.headers['x-access-token']
+
+		if not token:
+			return jsonify({ 'error' : 'Token is missing' }), 401
+
+		try: 
+			data = jwt.decode(token, app.config['SECRET_KEY'])
+			current_user = User.query.filter_by(public_id=data['public_id']).first()
+		except:
+			return jsonify({ 'error' : 'Token is invalid' }), 401
+
+		return f(current_user, *args, **kwargs)
+
+	return decorated
+
 
 #Receive user login and pass to generate a token to authorize access
 @app.route('/authenticate')
