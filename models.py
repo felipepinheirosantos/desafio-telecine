@@ -6,3 +6,5 @@ class User(db.Model):
 	name = db.Column(db.String(50), unique=True)
 	password = db.Column(db.String(255))
 	role = db.Column(db.String(20))
+
+db.create_all()
