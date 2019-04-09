@@ -1,9 +1,10 @@
-from flask import jsonify, request, make_response
+from flask import jsonify, request, make_response, Response, json
 from app import app, db
 from werkzeug.security import generate_password_hash, check_password_hash
-import uuid, jwt, datetime
+import uuid, jwt, datetime, movies_api
 from models import User
 from functools import wraps
+from datetime import datetime
 
 @app.route('/')
 def home():
@@ -84,3 +85,50 @@ def getUsers(current_user):
 		output.append(user_data)
 
 	return jsonify(output), 200
+
+#Route to get and format movies based on search by name
+@app.route('/movie/<name>', methods=['GET'])
+def getMoviesBySearch(name):
+
+	results = movies_api.getMovies(name)
+
+	if(results):
+
+		output = { 'movies' : [] }
+
+		for movie_data in results:
+			data = {}
+			item = { 'item' : {} }
+
+			data['title'] = movie_data['original_title']
+			data['brazilian_title'] = movie_data['title']
+			data['release_date'] = ''
+			if(movie_data['release_date']):
+				release_date = datetime.strptime(movie_data['release_date'], '%Y-%m-%d')
+				data['release_date'] = release_date.year
+
+			cast = movies_api.getCast(movie_data['id'])
+			data['cast'] = []
+			
+			genres = []
+			for genre_id in movie_data['genre_ids']:
+				genre_name = movies_api.getGenre(genre_id)
+				genres.append(genre_name)
+
+			data['genres'] = ', '.join(genres)
+
+			for person in cast:
+				if person['character']:
+					person_data = {
+						'role' : person['character'],
+						'name' : person['name']
+					}
+					data['cast'].append(person_data)
+
+
+			item['item'].update(data)
+			output['movies'].append(item)
+
+		return Response({ json.dumps(output) }, mimetype='application/json')
+
+	return jsonify({ 'message' : 'Movie not found.' }), 200
