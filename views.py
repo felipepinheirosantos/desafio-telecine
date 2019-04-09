@@ -3,6 +3,7 @@ from app import app, db
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid, jwt, datetime
 from models import User
+from functools import wraps
 
 @app.route('/')
 def home():
@@ -67,7 +68,8 @@ def createUsers():
 
 #get users list
 @app.route('/users')
-def getUsers():
+@token_required
+def getUsers(current_user):
 
 	users_list = User.query.all()
 
