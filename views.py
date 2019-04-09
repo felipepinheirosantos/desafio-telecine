@@ -20,3 +20,22 @@ def createUsers():
 	db.session.commit()
 
 	return jsonify({ 'message' : 'User created with success' }), 200
+
+
+#get users list
+@app.route('/users')
+def getUsers():
+
+	users_list = User.query.all()
+
+	output = []
+
+	for user in users_list:
+		user_data = {}
+		user_data['name'] = user.name
+		user_data['public_id'] = user.public_id
+		user_data['role'] = user.role
+
+		output.append(user_data)
+
+	return jsonify(output), 200
