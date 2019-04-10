@@ -52,9 +52,21 @@ headers={'x-access-token': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJwdWJsaWNfaWQ
 ```
 
 # Creating new users
-Send a POST request with name and password to following endpoint:
+Send a POST request with 'name' and 'password' to following endpoint:
   ```sh
 /user/create
+```
+
+# Changing user permissions (token_required)
+Send a POST request with 'name' and 'role' to following endpoint:
+  ```sh
+/user/update_role
+```
+
+# Delete user (token_required)
+Send a DELETE request with 'name' to following endpoint:
+  ```sh
+/user/delete
 ```
 
 # Listing users (token_required)

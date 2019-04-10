@@ -70,6 +70,43 @@ def createUsers():
 
 	return jsonify({ 'message' : 'User created with success' }), 200
 
+#change user role
+@app.route('/user/update_role', methods=['POST'])
+@token_required
+def updateUserRole(current_user):
+
+	if(current_user.role == 'admin'):
+		data = request.get_json()
+
+		user = User.query.filter_by(name=data['name']).first()
+
+		if user and user.name != current_user.name:
+			user.role = data['role']
+			db.session.commit()
+
+			return jsonify({ 'message' : 'User role has changed' }), 200
+
+		
+	return jsonify({ 'error' : 'Could not update user' }), 401	
+
+#change user role
+@app.route('/user/delete', methods=['DELETE'])
+@token_required
+def deleteUser(current_user):
+
+	if(current_user.role == 'admin'):
+		data = request.get_json()
+
+		user = User.query.filter_by(name=data['name']).first()
+
+		if user and user.name != current_user.name:
+			db.session.delete(user)
+			db.session.commit()
+
+			return jsonify({ 'message' : 'User deleted' }), 200
+
+		
+	return jsonify({ 'error' : 'Could not delete user' }), 401	
 
 #get users list
 @app.route('/users')
