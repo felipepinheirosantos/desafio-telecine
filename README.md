@@ -174,7 +174,7 @@ Response:
                     }
                 ],
                 "genres": "Animação, Ação, Comédia, Família, Ficção científica",
-                "release_date": 2010,
+                "year_of_production": 2010,
                 "title": "Megamind"
             }
         },
@@ -192,7 +192,7 @@ Response:
                     }
                 ],
                 "genres": "Animação, Ação, Comédia, Família",
-                "release_date": 2011,
+                "year_of_production": 2011,
                 "title": "Megamind: The Button of Doom"
             }
         }

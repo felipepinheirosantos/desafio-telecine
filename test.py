@@ -12,7 +12,7 @@ class TestCore(unittest.TestCase):
 
       response = tester.get('/users')
       self.assertEqual(response.status_code, 401, 'Acesso não autorizado')
-      
+
       response = self.login('admin_test', '123456')
 
       data = json.loads(response.data)
@@ -42,7 +42,7 @@ class TestCore(unittest.TestCase):
       tester = app.test_client(self)
 
       response = tester.get(
-          '/movie/Star Wars',
+          '/movie/Megamente',
           headers={'x-access-token': data['token'] })
 
       self.assertEqual(response.status_code, 200, 'Lista de filmes retornada com sucesso')

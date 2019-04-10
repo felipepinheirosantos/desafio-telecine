@@ -107,10 +107,10 @@ def getMoviesBySearch(current_user, name):
 
 			data['title'] = movie_data['original_title']
 			data['brazilian_title'] = movie_data['title']
-			data['release_date'] = ''
+			data['year_of_production'] = ''
 			if(movie_data['release_date']):
 				release_date = datetime.datetime.strptime(movie_data['release_date'], '%Y-%m-%d')
-				data['release_date'] = release_date.year
+				data['year_of_production'] = release_date.year
 
 			cast = movies_api.getCast(movie_data['id'])
 			data['cast'] = []
