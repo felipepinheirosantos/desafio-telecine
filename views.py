@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import uuid, jwt, datetime, movies_api
 from models import User
 from functools import wraps
-from datetime import datetime
+import datetime
 
 @app.route('/')
 def home():
@@ -23,7 +23,7 @@ def token_required(f):
 			return jsonify({ 'error' : 'Token is missing' }), 401
 
 		try: 
-			data = jwt.decode(token, app.config['SECRET_KEY'])
+			data = jwt.decode(token, app.config['SECRET_KEY'], algorithm='HS256')
 			current_user = User.query.filter_by(public_id=data['public_id']).first()
 		except:
 			return jsonify({ 'error' : 'Token is invalid' }), 401
@@ -48,8 +48,8 @@ def login():
 	
 	if check_password_hash(user.password, auth.password):
 		
-		token = jwt.encode({ 'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'])
-		return jsonify({ 'token' : token.decode('UTF-8') })
+		token = jwt.encode({ 'public_id' : user.public_id, 'exp' : datetime.datetime.utcnow() + datetime.timedelta(minutes=30)}, app.config['SECRET_KEY'], algorithm='HS256').decode('UTF-8')
+		return jsonify({ 'token' : token })
 
 	return make_response('Could not verify the access data', 401, { 'WWW-Authenticate' : 'Basic realm="Login required!"'})
 
@@ -58,6 +58,10 @@ def login():
 @app.route('/user/create', methods=['POST'])
 def createUsers():
 	data = request.get_json()
+
+	if(not data['password']):
+		return jsonify({ 'message' : 'User created with success' }), 401
+
 	hashed_password = generate_password_hash(data['password'], method='sha256')
 
 	new_user = User(public_id=str(uuid.uuid4()), name=data['name'], password=hashed_password, role='user')
@@ -88,7 +92,8 @@ def getUsers(current_user):
 
 #Route to get and format movies based on search by name
 @app.route('/movie/<name>', methods=['GET'])
-def getMoviesBySearch(name):
+@token_required
+def getMoviesBySearch(current_user, name):
 
 	results = movies_api.getMovies(name)
 
@@ -104,7 +109,7 @@ def getMoviesBySearch(name):
 			data['brazilian_title'] = movie_data['title']
 			data['release_date'] = ''
 			if(movie_data['release_date']):
-				release_date = datetime.strptime(movie_data['release_date'], '%Y-%m-%d')
+				release_date = datetime.datetime.strptime(movie_data['release_date'], '%Y-%m-%d')
 				data['release_date'] = release_date.year
 
 			cast = movies_api.getCast(movie_data['id'])
