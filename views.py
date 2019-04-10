@@ -60,7 +60,7 @@ def createUsers():
 	data = request.get_json()
 
 	if(not data['password']):
-		return jsonify({ 'message' : 'User created with success' }), 401
+		return jsonify({ 'error' : 'Password is missing' }), 401
 
 	hashed_password = generate_password_hash(data['password'], method='sha256')
 
@@ -76,19 +76,23 @@ def createUsers():
 @token_required
 def getUsers(current_user):
 
-	users_list = User.query.all()
+	if(current_user.role == 'admin'):
+		users_list = User.query.all()
 
-	output = []
+		output = []
 
-	for user in users_list:
-		user_data = {}
-		user_data['name'] = user.name
-		user_data['public_id'] = user.public_id
-		user_data['role'] = user.role
+		for user in users_list:
+			user_data = {}
+			user_data['name'] = user.name
+			user_data['public_id'] = user.public_id
+			user_data['role'] = user.role
 
-		output.append(user_data)
+			output.append(user_data)
 
-	return jsonify(output), 200
+		return jsonify(output), 200
+
+	return jsonify({ 'error' : 'Restricted Area' }), 401
+
 
 #Route to get and format movies based on search by name
 @app.route('/movie/<name>', methods=['GET'])
